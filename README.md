@@ -26,4 +26,4 @@ Below is a log of reactions to each of three ads.
   <img src="https://raw.githubusercontent.com/The-Real-Taylor-Swift/ad-feedback/master/Screenshots/logging-responses-to-each-of-three-ads.PNG" height="400"/>
 </p>
 
-The arrays contains 3 more arrays, each representing one ad.
+The arrays contain 3 more arrays, each representing one ad.
