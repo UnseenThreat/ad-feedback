@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Upload</title>
+
+    <style>
+    body {
+      font: helvetica;
+    }
+    #subheading {
+      color: red;
+    }
+    </style>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.2.2/jquery.form.min.js"></script>
+
+</head>
+<body>
+    <form id="frmUploader" enctype="multipart/form-data" action="api/Upload/" method="post">
+        <input type="file" name="imgUploader" multiple />
+        <input type="submit" name="submit" id="btnSubmit" value="Upload" />
+    </form>
+
+    <div id = "subheading"></div>
+    <div id = "status"></div>
+
+    <script>
+        $(document).ready(function () {
+            var options = {
+                beforeSubmit: showRequest,
+                success: showResponse
+            };
+
+            $('#frmUploader').submit(function () {
+                $(this).ajaxSubmit(options);
+                return false;
+            });
+        });
+
+        function showRequest(formData, jqForm, options) {
+          document.getElementById("status").innerHTML = 'Status: Starting upload...';
+          return true;
+        }
+
+        function showResponse(responseText, statusText, xhr, $form) {
+          document.getElementById("status").innerHTML = 'Status: ' + statusText + '</br> Server response: ' + responseText;
+        }
+    </script>
+</body>
+</html>

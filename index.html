@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Welcome!</title>
+
+    <style>
+    body {
+      font: helvetica;
+      padding : 20px;
+    }
+    .billboard {
+      position: absolute;
+      top:20%;
+      left:50%;
+    }
+
+    #ad {
+      position:absolute;
+      top: 20%;
+    }
+
+    #ad {
+      position:absolute;
+      top: 20%;
+    }
+    </style>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.2.2/jquery.form.min.js"></script>
+</head>
+
+<body>
+
+  <video class = "billboard" id = "inputVideo" width="400" height="300" type="video/mp4"></video>
+  <canvas class = "billboard" id="drawCanvas" width="400" height="300"></canvas>
+
+  <div id = "emotions"></div>
+
+  <img id = "ad"></img>
+
+<div id = "data"></div>
+
+  <script>
+  let video = document.getElementById("inputVideo"); // video is the id of video tag
+  navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+      .then(function(stream) {
+          video.srcObject = stream;
+          video.play();
+      })
+      .catch(function(err) {
+          console.log("An error occured! " + err);
+      });
+</script>
+
+<script src="http://localhost:2000/libs/utils.js"></script>
+<script src="http://localhost:2000/clmtrackr.js"></script>
+<script src="http://localhost:2000/model_pca_20_svm.js"></script>
+<script src="http://localhost:2000/libs/Stats.js"></script>
+<script src="http://localhost:2000/libs/d3.min.js"></script>
+<script src="http://localhost:2000/emotion_classifier.js"></script>
+<script src="http://localhost:2000/emotionmodel.js"></script>
+
+<script defer type="text/javascript">
+  var fileCount = "0";
+  var fileNumber = 0;
+  let emotionArray = [0,0,0,0,0,0];
+
+  let totalDisgust = 0;
+  let totalFear = 0;
+  let totalAnger = 0;
+  let totalSadness = 0;
+  let totalSurprise =0;
+  let totalHappiness =0;
+  let totalEmotions = 1;
+
+  var videoInput = document.getElementById('inputVideo');
+  var canvas = document.getElementById('drawCanvas');
+  var cc = canvas.getContext('2d');
+
+  pModel.shapeModel.nonRegularizedVectors.push(9);
+	pModel.shapeModel.nonRegularizedVectors.push(11);
+
+  var ctracker = new clm.tracker({useWebGL : true});
+  ctracker.init(pModel);
+  ctracker.start(videoInput);
+
+
+
+
+
+  function drawLoop() {
+    requestAnimationFrame(drawLoop);
+    cc.clearRect(0, 0, canvas.width, canvas.height);
+    if (ctracker.getCurrentPosition()) {
+						ctracker.draw(canvas);
+		}
+    var cp = ctracker.getCurrentParameters();
+		var er = ec.meanPredict(cp);
+
+    if (ctracker.getCurrentPosition()) {
+      //console.log(JSON.stringify(er
+      let kms = JSON.stringify(er);
+
+
+      for (let i = 0; i<6; i++) {
+      let newKms = kms.substring(kms.indexOf(".")-1, kms.indexOf(".")+4);
+      kms = kms.substring(kms.indexOf(".")+3);
+      emotionArray[i] = newKms;
+    }
+
+      totalDisgust += emotionArray[0].parseFloat;
+
+      totalFear += emotionArray[1].parseFloat;
+      totalAnger += emotionArray[2].parseFloat;
+      totalSadness += emotionArray[3].parseFloat;
+      totalSurprise += emotionArray[4].parseFloat;
+      totalHappiness += emotionArray[5].parseFloat;
+      totalEmotions += totalDisgust + totalFear + totalAnger + totalSadness + totalSurprise + totalHappiness;
+
+
+    document.getElementById("data").innerHTML = "Ad Number: " + fileNumber;
+    document.getElementById("emotions").innerHTML = "Disgust: " + emotionArray[0] + " Fear: " + emotionArray[1] + " Anger: " + emotionArray[2] + " Sadness: " + emotionArray[3] + " Surprise: " + emotionArray[4] + " Happiness: " + emotionArray[5];
+
+      fetch( 'http://localhost:2000/api/emotions', {
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+            method: "POST",
+            body: JSON.stringify(er)
+          })
+      .then((response) => response.json())
+      .then((responseJson) => {
+       //console.log(fileCount);
+
+      fileCount = JSON.stringify(responseJson).substring(14,15);
+      })
+      .catch((error) => {
+        console.log(error)
+        postSubmit(["Oops, something Went Wrong."]);
+      });
+
+    } else {
+      document.getElementById("emotions").innerHTML = "";
+    }
+
+		}
+
+    var ec = new emotionClassifier();
+		ec.init(emotionModel);
+		var emotionData = ec.getBlank();
+
+    drawLoop();
+
+    //videoInput.addEventListener('timeupdate', updateFrame, false);
+    setInterval(updateFrame, 10000);
+
+    let ad =  document.getElementById("ad");
+
+    function updateFrame() {
+    //  console.log(fileNumber);
+      //console.log(fileCount);
+
+      if (fileCount > 0) {
+      ad.src = "http://localhost:2000/" + fileNumber + ".jpg";
+      ad.width = canvas.width;
+      ad.height = canvas.height;
+
+      fileNumber++;
+      totalDisgust = 0;
+      totalFear = 0;
+      totalAnger = 0;
+      totalSadness = 0;
+      totalSurprise = 0;
+      totalHappiness = 0;
+      totalEmotions = 1;
+
+      if(fileNumber > fileCount -1) {
+        fileNumber =0;
+
+      }
+    }
+}
+
+
+</script>
+
+</body>
+
+</html>
