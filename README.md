@@ -3,7 +3,7 @@ Observe how people respond to advertisements.
 
 Companies spend tons of money on advertising, but they do not know if their ads have the desired impact on their audience. Ad-feedback allows advertisers to receive direct feedback from the public.
 
-### 1. First, an ad is uploaded to the server:
+### 1. An ad is uploaded to the server.
 
 <p align="left">
   <img src="https://raw.githubusercontent.com/The-Real-Taylor-Swift/ad-feedback/master/Screenshots/uploading-ads.PNG" width="350"/>
@@ -16,7 +16,7 @@ Companies spend tons of money on advertising, but they do not know if their ads 
 </p>
 
 If multiple ads have been uploaded, the page flips through each ad every ten seconds.
-We used clmtrackr, a library for face analysis, to detect emotions in the browser.
+I used clmtrackr, a library for face analysis, to detect emotions in the browser.
 
 
 ### 3. The viewers' reactions to each ad are sent to the server.
