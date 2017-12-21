@@ -15,14 +15,11 @@ function updateNumber() {
 
   fileNumber++;
 
-  if(fileNumber > fileCount -1) {
-    fileNumber =0;
-
+  if(fileNumber === fileCount) {
+    fileNumber = 0;
   }
 }
 }
-
-
 
 let emotionArray = [];
 
@@ -84,9 +81,6 @@ app.get("/", function (req, res) {
 });
 app.get("/upload", function (req, res) {
     res.sendFile(__dirname + "/upload.html");
-});
-app.get("/data", function (req, res) {
-    res.sendFile(__dirname + "/data.html");
 });
 
 app.listen(2000, function (a) {
